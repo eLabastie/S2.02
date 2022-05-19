@@ -120,7 +120,7 @@ def distarc(arret1,arret2):
 
 #Appel des fonctions
 #Appel des fonctions
-print(distarc('MUSE', 'ARTE'))
+print(distarc('VECL', 'VBOU'))
 print(distarrets('VECL', 'VBOU'))
 
 """F"""
@@ -143,18 +143,23 @@ def dijkstra(arret_dep,arret_fin):
     poids=0
     pred=[]
     dist=[]
+   
     s=0
     minimum=0
     arret_traites=[]
     pred.append("")
     dist.append(0)
+    arret_atraiter=[]
     
     for i in nom_arrets:
-         arret_dep=i
-         arret_traites.append(arret_dep)
-    return arret_traites
+         arret_atraiter.append(i)
+    print(arret_atraiter)
+    
 
+        
+    
 
+    extract()
 print(dijkstra('maboule','arret_fin'))
 
     
@@ -170,26 +175,53 @@ print(dijkstra('maboule','arret_fin'))
     #mimimum dans voisin(arret_dep)
     
        
-    
+     
     
    
 print( dijkstra('MUSE','MM'))
     
  """
-dist=[8,9,5,3,7,2]
-atraiter=[1,3,4]
 
-def extract(dist,atraiter):
-    minimum= float('inf')
-    for i in dist:
-        if i in atraiter:
-            if i < minimum:
-                minimum=i
-    return minimum
+def extract(dist,nom, aTraiter):
+    mini = float('inf')
+    for i in range(len(dist)): 
+        if dist[i] < mini:
+            if nom[i] in aTraiter:
+                mini = dist[i]
+                arret_succ=nom[i]
+    return arret_succ , mini 
     
-print(extract(dist, atraiter))
-            
+
+
+arret_atraiter=[]
+distsucc=[]
+nomsucc=[]
+arret_dep='AVRI'
+arret_fin='MUSE'
+pred=[]
+poids=0
+poidst=0
+dist=[]
+
+for i in nom_arrets:
+    arret_atraiter.append(i)
+
+while(arret_dep != arret_fin):
+    
+    for i in voisin(arret_dep):
+        distsucc.append(distarrets(arret_dep, i))
+        nomsucc.append(i)
+    
+    arret_atraiter.remove(arret_dep)
+    arret_dep=extract(distsucc, nomsucc, arret_atraiter)[0]
+    poids=extract(distsucc, nomsucc, arret_atraiter)[1]
+    poidst= poidst + poids
+    dist.append(poidst)
+    pred.append(arret_dep)
     
     
+print(pred)
+print(dist)         
+
 
 
