@@ -79,14 +79,14 @@ def distarc(arret1,arret2):
 """ ////// ETAPE 2 : DIJKSTRA ////// """
 
 def extract(poids, aTraiter):
-    mini = float('inf')
+    mini = float('inf')              
     global arret_succ
     for i in poids : 
-        if poids[i][0] < mini:
-            if i in aTraiter :
-                mini = poids[i][0]
-                arret_succ = i
-    return arret_succ , mini 
+        if poids[i][0] < mini:          # Pour chaque successeurs i on définit lequel a le poids le plus petit
+            if i in aTraiter :          # Si ce poids concerne un successeur qui n'a pas été traité 
+                mini = poids[i][0]       # le minimum prends la valeur du poids du successeur 
+                arret_succ = i           # prend le nom du successeur avec le poids le plus petit
+    return arret_succ , mini           
 
 def dijkstra ( arret_dep , arret_fin):
 
