@@ -28,58 +28,11 @@ for i in donneesbus:
     nom_arrets.append(i)
        
     
-"""C"""
-
-#retourne le nom de l'arret d'indice ind
-def nom(ind): 
-    return nom_arrets[ind]
-
-
-#retourne l'indice de l'arret de nom nom_som
-def indice_som(nom_som): 
-    for i in range(len(nom_arrets)):
-        if nom_som == nom_arrets[i]:
-            return i
-
-
-#retourne la latitude de l'arret de nom nom_som
-def latitude(nom_som): 
-    return donneesbus[nom_som]['lattitude'] 
-
-
-#retourne la longitude de l'arret de nom nom_som
-def longitude(nom_som): 
-    return donneesbus[nom_som]['longitude']
 
 
 #retourne la liste de voisin de l'arret de nom nom_som
 def voisin(nom_som): 
     return json[nom_som][2]
-
-#Appel des fonctions
-print(voisin('NOVE')[1])
-
-
-"""D"""
-
-#retourne la liste d'adjascence des arrets(en fonction de leur indice)
-def dic_bus(): 
-    D={}
-    for i in donneesbus:
-        D[i]=donneesbus[i]['listesucc']
-    return D
-
-#retourne la matrice d'adjascence des arrets(en fonction de leur indice)
-def mat_bus():
-    M=[]
-    for i in donneesbus:
-        M.append([])
-        for j in donneesbus:
-            if i in voisin(j):
-                M[indice_som(i)].append(1)
-            else:
-                M[indice_som(i)].append(0)	
-    return M
 
 
 
@@ -118,110 +71,68 @@ def distarc(arret1,arret2):
     else:
         return float('inf')
 
-#Appel des fonctions
-#Appel des fonctions
-print(distarc('VECL', 'VBOU'))
-print(distarrets('VECL', 'VBOU'))
-
-"""F"""
-
-#génère la matrice pondérée du réseau de bus
-def poids_bus(): 
-    M=[]
-    for i in donneesbus:
-       M.append([]) 
-       for j in donneesbus:
-           M[indice_som(i)].append(distarc(i,j))#utilisation de indice_som pour récupérer l'indice du sommet courant
-    return M
-
-#Appel de la fonction
 
 
-def dijkstra(arret_dep,arret_fin):
-    
-    #Initialisation
-    poids=0
-    pred=[]
-    dist=[]
-   
-    s=0
-    minimum=0
-    arret_traites=[]
-    pred.append("")
-    dist.append(0)
-    arret_atraiter=[]
-    
-    for i in nom_arrets:
-         arret_atraiter.append(i)
-    print(arret_atraiter)
-    
-
-        
-    
-
-    extract()
-print(dijkstra('maboule','arret_fin'))
 
     
-"""    
-    arret_traites.append(arret_dep)
-    #mimimum dans voisin(arret_dep)
-    poids=poids+distarc(s,minimum)
-    dist.append(poids)
-    pred.append(s)
-    arret_traites.append(s)
-     
-    s=minimum
-    #mimimum dans voisin(arret_dep)
-    
-       
-     
-    
-   
-print( dijkstra('MUSE','MM'))
-    
- """
 
-def extract(dist,nom, aTraiter):
+""" ////// ETAPE 2 : DIJKSTRA ////// """
+
+def extract(poids, aTraiter):
     mini = float('inf')
-    for i in range(len(dist)): 
-        if dist[i] < mini:
-            if nom[i] in aTraiter:
-                mini = dist[i]
-                arret_succ=nom[i]
+    global arret_succ
+    for i in poids : 
+        if poids[i][0] < mini:
+            if i in aTraiter :
+                mini = poids[i][0]
+                arret_succ = i
     return arret_succ , mini 
+
+def dijkstra ( arret_dep , arret_fin):
+
+#Initialisation
+#Creation d'une liste contenant le nom de tout les arrets du réseau
+#Des que l'on aura fini de traiter tout les successeurs d'un arret on le retirera de la liste
+
+    arret_atraiter=[]
+    for i in nom_arrets:
+        arret_atraiter.append(i)
+
+#Creation d'un dicitonnaire qui contiendra le poids minimum pour acceder à un sommet donné
+# et en deuxième paramètre son chemin pour y acceder
+    info_sommet={}
+    for i in nom_arrets:
+            info_sommet[i]=[]
+            info_sommet[i].append(float('inf'))  # chemin non défini
+            info_sommet[i].append(str(None))     #predecesseur non défini
+
+
+#Initialisation du sommet de départ qui ne possède pas de poids et pas de predecesseur
+    info_sommet[arret_dep][0]= 0
+    info_sommet[arret_dep][1]='' 
+
+
+    while ( arret_atraiter ):           # Tant qu'il reste des sommets a traiter
+    
+        for i in voisin(arret_dep):            #pour i successeur de l'arret actuel
+            if (distarrets(arret_dep, i) +info_sommet[arret_dep][0]  < info_sommet[i][0] ):    #si poids du chemin actuel est meilleur que celui deja établi sur le successeur visé
+                info_sommet[i][0]= (distarrets(arret_dep, i)) + info_sommet[arret_dep][0]   # alors le poids du succeseur visé est réajusté dans le dictionnaire
+                
+                info_sommet[i][1]=(str(info_sommet[arret_dep][1] + "[" + str(i) + "]"))              # Initialisation dans le dictionnaire du chemin complet menant au successeur
+         
+             
+        arret_atraiter.remove(arret_dep)                           # Si tous les successeurs visités --> Sommet traité donc on le retire de la liste des sommets non traités
+        arret_dep= extract( info_sommet , arret_atraiter)[0]       # On se déplace vers le successeur qui semble le meilleur ( avec le poids le plus faible) 
     
 
 
-arret_atraiter=[]
-distsucc=[]
-nomsucc=[]
-arret_dep='AVRI'
-arret_fin='MUSE'
-pred=[]
-poids=0
-poidst=0
-dist=[]
+    print(" Chemin  :" ,info_sommet[arret_fin][1])            #Affichage du chemin de l'arret final ,enregistré dans le dictionnaire
+    print("Distance minimum :" , info_sommet[arret_fin][0])  # Affichage du poids total de l'arret final , ,enregistré dans le dictionnaire
 
-for i in nom_arrets:
-    arret_atraiter.append(i)
 
-while(arret_dep != arret_fin):
-    
-    for i in voisin(arret_dep):
-        distsucc.append(distarrets(arret_dep, i))
-        nomsucc.append(i)
-    
-    arret_atraiter.remove(arret_dep)
-    arret_dep=extract(distsucc, nomsucc, arret_atraiter)[0]
-    poids=extract(distsucc, nomsucc, arret_atraiter)[1]
-    poidst= poidst + poids
-    dist.append(poidst)
-    pred.append(arret_dep)
-    
-    
-print(pred)
-print(dist)         
+
+dijkstra('7PUI','ACAC')
+
 
 
 
